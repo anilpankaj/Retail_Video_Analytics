@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/*.mp4
+models/*.pt
+outputs/
+outputs_*/
+calib/
+*.log

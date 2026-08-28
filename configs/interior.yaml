@@ -1,0 +1,117 @@
+# ---------------------------------------------------------------------------
+# interior.mp4  -  Task 2 (per-shelf customer interest)
+#
+# Scene: a high corner camera with strong barrel distortion looking across
+# the shop floor. The four designated areas from Figure 1 of the brief map
+# onto the frame as follows (label anchors read off the figure and matched
+# to the fixtures in the footage):
+#
+#   Shelf C  the long tiered display running up-right across the middle
+#   Shelf A  the tall gondola on the right with the colour sock rack
+#   Shelf B  the low wooden gondola front-centre with the orange shoebox rack
+#   Shelf D  the shoe wall down the left-hand side
+#
+# Polygons outline the FIXTURE, not the floor in front of it. Engagement is
+# then decided by distance-to-fixture normalised by the customer's own pixel
+# height, which is far more robust to hand-drawing error than trying to trace
+# floor regions under this much lens distortion.
+# ---------------------------------------------------------------------------
+
+extends: common.yaml
+name: interior
+
+scene:
+  # Ground points above this band are the far side of the store and the mall
+  # beyond it; people there are not engaging with shelves A-D.
+  roi_polygon:
+    - [0, 230]
+    - [1280, 230]
+    - [1280, 720]
+    - [0, 720]
+
+  shelves:
+    - id: A
+      # Right-hand gondola: dark shoes on open shelves plus the sock rack.
+      polygon: [[715, 195], [1005, 200], [1010, 470], [930, 510], [712, 400]]
+      label_anchor: [860, 250]
+      color: [80, 90, 245]        # BGR - red
+      max_norm_dist: 1.1
+
+    - id: B
+      # Front-centre low gondola with the wooden top and orange shoebox rack.
+      polygon: [[430, 355], [700, 310], [800, 320], [815, 500], [790, 700], [560, 715], [440, 590]]
+      label_anchor: [600, 420]
+      color: [90, 200, 90]        # green
+      max_norm_dist: 1.0
+
+    - id: C
+      # Upper tiered display running diagonally across the middle.
+      polygon: [[285, 305], [300, 225], [672, 172], [705, 222], [668, 320]]
+      label_anchor: [470, 250]
+      color: [235, 100, 235]      # magenta
+      max_norm_dist: 1.1
+
+    - id: D
+      # Shoe wall down the left-hand side.
+      polygon: [[95, 375], [290, 700], [240, 720], [85, 720], [55, 500]]
+      label_anchor: [150, 520]
+      color: [235, 235, 60]       # cyan
+      max_norm_dist: 1.0
+
+task2:
+  # DECISION: everyone in this view is treated as a customer.
+  #
+  # The metric is *customer* interest, so excluding staff would be desirable
+  # in principle. But in this camera the apron signal does not survive: the
+  # view is from above and further away, several genuine customers wear dark
+  # clothing that scores as high as an apron (measured: dark-torso ratios of
+  # 0.83-0.96 on shoppers), and no badge is resolvable. Excluding people on
+  # a signal that unreliable would remove real customer interest events and
+  # be impossible to defend. It is left OFF deliberately, and listed as a
+  # known limitation in the README.
+  #
+  # The classifier still runs in report-only mode when this is turned on, so
+  # the evidence can be inspected in outputs/audit/task2_staff_features.csv.
+  exclude_staff: false
+  staff:
+    residency_target_s: 90.0
+    score_threshold: 0.62
+    min_obs: 20
+    force_staff_ids: []
+    force_customer_ids: []
+
+  interest:
+    # Fallback distance gate for any shelf that does not set its own.
+    max_norm_dist: 1.05
+    # "directs their attention toward it" - body/head orientation.
+    facing_angle_deg: 75
+    # Reaching for a product: the strongest evidence of engagement, and the
+    # tie-break the brief asks for when a customer stands between two shelves.
+    reach_angle_deg: 70
+
+    # Reach is weighted highest because it is the least ambiguous evidence in
+    # this scene: a hand in a shelf is engagement, whereas body orientation is
+    # noisy for a customer bent over a low gondola, and proximity alone cannot
+    # separate two shelves that share an aisle.
+    score_weights:
+      proximity: 0.70
+      facing: 0.70
+      reach: 1.00
+
+    # Reachable two ways: "close and clearly facing it" (0.70*0.8 + 0.70*0.8)
+    # or "reaching into it from nearby" (0.70*1.0 + 1.00*0.5).
+    score_threshold: 0.90
+
+    # --- the three temporal rules --------------------------------------- #
+    # Attention must be sustained before it is an event: walking past a
+    # shelf is not interest.
+    min_dwell_s: 2.5
+    # A shorter break (missed detection, glance away, occlusion behind a
+    # gondola) does NOT end the episode.
+    flicker_tolerance_s: 1.5
+    # After an episode ends, re-engagement within this window is merged back
+    # into it; re-engagement after it counts as a NEW event. This is the
+    # continuous-episode vs genuine-return rule.
+    min_gap_between_events_s: 6.0
+
+    min_track_seconds: 1.0

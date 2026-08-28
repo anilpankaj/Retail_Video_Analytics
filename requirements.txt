@@ -1,0 +1,13 @@
+# Pinned to the versions the submitted results were produced with.
+# Everything here runs locally; no cloud or paid inference APIs are used.
+
+ultralytics==8.3.253          # YOLO11 pose models + BoT-SORT tracking
+torch==2.13.0                 # installed automatically by ultralytics; pinned for reproducibility
+torchvision==0.28.0
+opencv-python-headless==4.13.0.88
+numpy>=1.26,<2.3
+PyYAML>=6.0
+lap>=0.5.12                   # linear assignment used by the tracker
+
+# development / verification only
+pytest>=8.0

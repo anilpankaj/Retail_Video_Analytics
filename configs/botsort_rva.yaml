@@ -1,0 +1,46 @@
+# BoT-SORT tuned for FIXED retail CCTV.
+#
+# The stock Ultralytics defaults assume a moving camera and short clips. Three
+# changes matter here, and each is worth defending:
+#
+#  * gmc_method: none
+#      Global motion compensation estimates camera ego-motion from sparse
+#      optical flow. Both of these cameras are bolted to a ceiling, so there is
+#      no ego-motion to compensate - and the flow estimate is instead driven by
+#      the *people* moving through the frame, which actively injects error into
+#      the Kalman prediction. Turning it off both removes that error and saves
+#      CPU.
+#
+#  * track_buffer: 60
+#      How long a lost track is kept alive for re-association. We feed the
+#      tracker at 10 Hz (frame_stride 3 on 30 fps footage), so 60 buffered
+#      frames is ~6 seconds - long enough to survive a shopper walking behind a
+#      gondola, which is the dominant occlusion in this footage.
+#
+#  * new_track_thresh: 0.35 (up from 0.25)
+#      Spawning a new identity is what corrupts a "unique people" count, so a
+#      marginal detection should be allowed to die rather than become a new
+#      person. Combined with the higher match_thresh this trades a little
+#      recall for materially fewer identity switches.
+#
+# Anything not listed here keeps the Ultralytics default.
+
+tracker_type: botsort
+
+track_high_thresh: 0.25       # first association pass
+track_low_thresh: 0.10        # second pass, recovers weak detections
+new_track_thresh: 0.35        # threshold to start a NEW identity
+track_buffer: 60              # frames a lost track survives (~6 s at 10 Hz)
+match_thresh: 0.85            # IoU matching threshold
+fuse_score: true              # fold detection confidence into the cost matrix
+
+gmc_method: none              # fixed camera - see above
+
+# BoT-SORT appearance gating (only used when with_reid is true)
+proximity_thresh: 0.5
+appearance_thresh: 0.25
+with_reid: false              # kept off: a ReID backbone roughly doubles CPU
+                              # cost, and the project's own colour-histogram
+                              # fragment linker covers the same failure mode.
+                              # See README "What I would do next".
+model: auto

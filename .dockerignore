@@ -1,0 +1,11 @@
+data/
+outputs/
+outputs_*/
+calib/
+docs/
+.git/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+models/*.pt

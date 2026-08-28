@@ -1,0 +1,73 @@
+# ---------------------------------------------------------------------------
+# Settings shared by both scenes.
+#
+# Everything that can change a reported number lives in YAML, never in code.
+# Distances are expressed in "body-heights" (pixels divided by the detected
+# person's own pixel height) so a single threshold works both for a shopper
+# 2 m from the camera and a passer-by at the far end of the walkway.
+# Durations are always in seconds, never frames, so changing `frame_stride`
+# can never change a count.
+# ---------------------------------------------------------------------------
+
+model:
+  # YOLO11-pose gives boxes AND the 17 COCO keypoints in one forward pass.
+  # Keypoints are needed for body orientation, reach direction and the torso
+  # crop used by the staff classifier, so a pose model is strictly cheaper
+  # than a detector + a separate pose network.
+  #   yolo11n-pose.pt  fastest, weakest on the small figures in the walkway
+  #   yolo11s-pose.pt  the default: best accuracy/cost balance on CPU
+  #   yolo11m-pose.pt  best recall if a GPU is available
+  weights: models/yolo11s-pose.pt
+  # 960 rather than 640: passers-by in the mall walkway are only 60-110 px
+  # tall, and recall on them collapses at 640.
+  imgsz: 960
+  conf: 0.30
+  iou: 0.55
+  device: cpu          # cpu | cuda | mps
+  half: false
+  # BoT-SORT couples a Kalman motion model with appearance, which suits fixed
+  # cameras where people vanish behind fixtures for a second or two.
+  tracker: configs/botsort_rva.yaml
+
+runtime:
+  # Inference runs on every Nth frame; the annotated video is still written at
+  # the source frame rate with the most recent state held in between. At 30 fps
+  # a stride of 3 means the overlay is at most 66 ms stale - invisible - while
+  # costing a third of the compute.
+  frame_stride: 3
+  # Number of processed frames used to estimate velocity and smooth facing.
+  smoothing_window: 7
+  # Normalised speed (body-heights/second) at which we consider someone to be
+  # walking normally. Used to weight motion-based orientation against pose.
+  walk_speed_norm: 0.9
+  # How much a confident motion direction outweighs the pose normal.
+  motion_bias: 0.65
+  # Minimum keypoint confidence before a joint is used for any decision.
+  kp_conf_min: 0.35
+
+  # Identity switches inflate every "unique person" count, so a newly born
+  # track is stitched onto a recently dead one when it appears close in time
+  # and space AND their torso colour histograms agree. Deliberately strict:
+  # leaving two fragments apart costs one over-count, wrongly merging two
+  # people corrupts several metrics at once.
+  fragment_linker:
+    enabled: true
+    # A shopper occluded by a gondola typically reappears within a couple of
+    # seconds and within a couple of body-heights of where they vanished.
+    max_gap_s: 3.0
+    max_dist_norm: 2.2
+    # Torso colour histograms are noisy for a 90 px person, so the similarity
+    # bar is moderate - but it is only ever consulted AFTER the time and
+    # distance gates have both passed, which is what keeps it safe.
+    min_similarity: 0.45
+    retire_after_s: 0.5
+    # A fragment can be linked during its first few observations, not only on
+    # the very first: the parent track is sometimes still being retired on the
+    # frame the child is born.
+    link_within_obs: 3
+
+output:
+  codec: mp4v
+  draw_keypoints: true
+  entrance_video: entrance_annotated.mp4
+  interior_video: interior_annotated.mp4

@@ -1,0 +1,246 @@
+# ---------------------------------------------------------------------------
+# entrance.mp4  -  Task 1 (store interest & conversion) + Task 3 (staff)
+#
+# Scene: the camera sits INSIDE the store looking out into a shopping-mall
+# atrium. The frame has three bands:
+#   * bottom   - store interior (navy carpet lounge, display plinths)
+#   * middle   - the mall walkway where passers-by travel
+#   * top      - the atrium void: a glass balustrade with the level BELOW
+#                visible through it. People there are on a different floor
+#                and must never be counted.
+#
+# The polygons below were calibrated empirically, not guessed: the detector
+# was run over the whole clip at 2 Hz and every foot position plotted onto a
+# reference frame (see docs/). The walkway polygon is drawn around the actual
+# traffic band, and the storefront line is drawn through the dead zone where
+# nobody walks because the store's frontline fixtures stand there.
+# ---------------------------------------------------------------------------
+
+extends: common.yaml
+name: entrance
+
+scene:
+  # Ground points above this row belong to another mall level (or are a
+  # reflection in the balustrade glass). The empirical scan found essentially
+  # no genuine detections above y=225, so 215 is a safe, generous cut.
+  roi_top_y: 215
+
+  # Where a person must be to count as "in the store".
+  store_polygon:
+    - [0, 440]
+    - [150, 405]
+    - [280, 345]
+    - [390, 288]
+    - [470, 335]
+    - [560, 372]
+    - [660, 402]
+    - [760, 428]
+    - [870, 450]
+    - [1000, 455]
+    - [1140, 452]
+    - [1280, 455]
+    - [1280, 720]
+    - [0, 720]
+
+  # The mall walkway in front of the storefront. Its far edge follows the
+  # balustrade; anything beyond is another floor.
+  walkway_polygon:
+    - [390, 288]
+    - [430, 238]
+    - [520, 220]
+    - [640, 210]
+    - [780, 206]
+    - [920, 210]
+    - [1060, 224]
+    - [1200, 242]
+    - [1280, 258]
+    - [1280, 455]
+    - [1140, 452]
+    - [1000, 455]
+    - [870, 450]
+    - [760, 428]
+    - [660, 402]
+    - [560, 372]
+    - [470, 335]
+
+  # The lease line: the shared boundary between walkway and store. There is no
+  # door - the frontage is open - so this material transition IS the entrance
+  # boundary, and it is what "crossing the entrance boundary" means here.
+  storefront_line:
+    - [390, 288]
+    - [470, 335]
+    - [560, 372]
+    - [660, 402]
+    - [760, 428]
+    - [870, 450]
+    - [1000, 455]
+    - [1140, 452]
+    - [1280, 455]
+
+task1:
+  # Staff stand at the storefront all day; counting them as interested
+  # passers-by would swamp the metric.
+  exclude_staff: true
+
+  interest:
+    # --- the gate -------------------------------------------------------- #
+    # Beyond ~2 body-heights from the storefront a person is on the far side
+    # of the walkway and cannot be said to be attending to THIS store.
+    max_norm_dist_to_front: 2.0
+
+    # --- the four behavioural signals ------------------------------------ #
+    # "looking toward the storefront / turning their head or body toward it"
+    facing_angle_deg: 70
+    # "slowing down" - about half a normal walking pace, NOT a full stop.
+    slow_speed_norm: 0.55
+    # "approaching the entrance" - closing on the storefront line. The signal
+    # switches on at approach_rate_norm and reaches full strength at
+    # approach_full_rate_norm, both in body-heights per second (negative =
+    # getting closer). The upper figure matters: at the original 0.3 the term
+    # saturated for anyone merely drifting inward, and it became the dominant
+    # trigger for people who were plainly just walking past. 0.8 body-heights
+    # per second is a purposeful walk toward the door.
+    approach_rate_norm: -0.05
+    approach_full_rate_norm: 0.8
+
+    # Facing carries the most weight because "directing attention toward the
+    # store" is the definition; approach is next because walking at the door
+    # is unambiguous intent; slowing and proximity are supporting evidence
+    # that cannot on their own make someone interested.
+    score_weights:
+      proximity: 0.60
+      facing: 1.20
+      slow: 0.60
+      approach: 0.90
+
+    # Worked examples at the 1.20 threshold:
+    #   looking at the store from ~1 body-height    0.96 + 0.30 = 1.26  PASS
+    #   walking straight at the entrance, not slow  0.90 + 0.30 = 1.20  PASS
+    #   slowing near the store but looking away     0.54 + 0.30 = 0.84  FAIL
+    #   merely walking close by                            0.30 = 0.30  FAIL
+    score_threshold: 1.20
+
+    # Evidence must persist: one noisy frame cannot mint a customer.
+    min_evidence_s: 0.8
+    evidence_tolerance_s: 0.5
+    min_track_seconds: 0.8
+
+    # Task 1 measures PASSERS-BY converting. A track whose first in-scene
+    # observation is already inside the store belongs to someone who was
+    # shopping before the clip began (or entered off-camera): they are not a
+    # passer-by, and counting them would inflate both "interested" and
+    # "entered". They are still tracked and still available to Task 3.
+    require_walkway_origin: true
+    min_walkway_seconds: 0.4
+
+  entry:
+    # "crosses the entrance boundary AND continues into the store": the feet
+    # must be inside the store polygon, at least this far past the line, for
+    # this long. Together these reject someone leaning in and stepping back.
+    confirm_s: 1.2
+    min_depth_norm: 0.45
+
+  exit:
+    # An interested person who leaves both zones without confirming entry has
+    # passed by. The delay avoids reacting to a single dropped detection.
+    passby_confirm_s: 1.0
+
+task3:
+  staff:
+    # The uniform is a dark navy bib apron with a small circular light badge.
+    # Dark + desaturated torso pixels:
+    dark_v_max: 95
+    dark_s_max: 120
+    # A *small* bright blob inside that dark region is the badge; a large
+    # bright area means a light shirt, not an apron, so it scores zero.
+    # The badge is found as a SHAPE, not a brightness fraction: a connected
+    # bright blob covering 0.5-6% of the torso and roughly circular, sitting on
+    # the dark apron field. A light-coloured shirt fails the area test; a lit
+    # shoulder or a bag strap fails the shape test.
+    #
+    # Every number here was measured on real staff torso crops from this clip
+    # (e.g. at t=10 s: a 20x17 px blob, 3.6% of the torso, aspect 0.85,
+    # fill 0.50). The scene is dim - the 99th percentile of torso brightness
+    # is only ~156 - so the bright threshold is 140, not the 200+ that a well
+    # lit scene would want.
+    badge_v_min: 140
+    badge_min_fraction: 0.005
+    badge_max_fraction: 0.06
+    badge_min_aspect: 0.60
+    # The badge carries a dark logo, so its bright mask is a ring rather than a
+    # disc: measured fill is ~0.50, well below the 0.79 of a solid circle.
+    badge_min_fill: 0.42
+    # Only look for a badge on a torso that is actually dark - this stops the
+    # search from firing on light clothing.
+    badge_requires_apron: 0.40
+    # Scored by DETECTION RATE, not an average: the badge is occluded by an arm
+    # or a customer on many frames, so what matters is that it is seen
+    # repeatedly. Seeing the badge on a quarter of resolvable frames scores
+    # full marks. Measured over the full clip: 0.15-0.64 on the tracks that are
+    # visibly staff, 0.10-0.13 on the two long-lived lounge tracks that are NOT
+    # (see below), so this term alone cannot carry a decision - which is why
+    # min_obs matters as much as the rate.
+    badge_rate_target: 0.25
+    # Below ~110 px of person height the badge is under 15 px across and the
+    # shape test is meaningless, so no badge evidence is recorded either way.
+    min_badge_height_px: 110
+    # Behavioural prior: customers transit, staff stay. Saturates at 30 s
+    # of accumulated time inside the store polygon.
+    residency_target_s: 30.0
+    # Dark clothing alone is far too common among customers to carry the
+    # decision (measured dark-torso ratios of 0.83-0.96 on genuine shoppers),
+    # so the badge carries the most weight and residency is only a tie-breaker.
+    #
+    # Worked examples against the 0.62 threshold:
+    #   staff: apron 0.55, badge rate 0.5, resident
+    #          0.35*0.55 + 0.45*1.00 + 0.20*1.00 = 0.84   STAFF
+    #   dark-clothed customer sitting through the clip, no badge
+    #          0.35*0.90 + 0.45*0.00 + 0.20*1.00 = 0.52   customer
+    #   the same customer with a 5% badge false-positive rate
+    #          0.35*0.90 + 0.45*0.20 + 0.20*1.00 = 0.61   customer
+    score_weights:
+      apron: 0.35
+      badge: 0.45
+      residency: 0.20
+    score_threshold: 0.62
+    # Do not commit to a verdict before this many torso observations. At the
+    # 10 Hz analysis rate 60 observations is 6 seconds of visible torso.
+    #
+    # This is the single most important guard against over-counting staff. A
+    # first pass at min_obs=12 produced 19 "staff" from 93 tracks, most of them
+    # 1-3 second fragments that happened to be dark and to fire the badge
+    # detector once or twice; the false-positive rate on a 1.3 s track is
+    # simply too high to be worth anything. A genuine staff member serving a
+    # customer is visible for far longer than 6 s, so the recall cost is small
+    # and the precision gain is large.
+    min_obs: 60
+    # A "staff instance" that flickered for under 2 s and served nobody is a
+    # detection artefact; including it would deflate the average with a
+    # spurious zero.
+    min_track_seconds: 2.0
+    # Escape hatches for reproducible manual correction (audited in the
+    # README). Leave empty for the fully automatic result.
+    force_staff_ids: []
+    force_customer_ids: []
+
+  interaction:
+    # Within ~1.9 body-heights of each other - conversational distance.
+    max_norm_dist: 1.9
+    facing_angle_deg: 80
+    # One-directional facing is enough: during a shoe fitting the staff
+    # member faces the customer while the customer looks down at the shoe,
+    # so requiring mutual gaze would miss the commonest interaction here.
+    require_mutual: false
+    # Fallback for the seating area at the bottom of frame, where the staff
+    # member kneels, is truncated by the frame edge and pose is unreliable:
+    # close together AND both essentially stationary.
+    allow_costationary: true
+    costationary_speed_norm: 0.22
+    costationary_max_norm_dist: 1.5
+    # A session must be sustained; a customer walking past a staff member
+    # is not an interaction.
+    min_session_s: 2.0
+    flicker_tolerance_s: 1.0
+    # Engagement stopping for longer than this closes the session. A later
+    # re-engagement between the same pair is counted as a NEW session.
+    end_gap_s: 3.0
