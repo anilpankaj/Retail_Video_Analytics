@@ -1,0 +1,7 @@
+staff_instance,track_id,first_seen_s,last_seen_s,interaction_sessions
+Staff 1,2,0.0,18.0,0
+Staff 2,45,66.1,88.9,0
+Staff 3,51,77.0,88.2,0
+Staff 4,142,247.0,287.8,5
+Staff 5,146,249.2,261.7,0
+AVERAGE,,,,1.0

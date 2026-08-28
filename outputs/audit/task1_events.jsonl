@@ -1,0 +1,13 @@
+{"t": 186.2, "event": "interest", "track_id": 96, "score": 1.892, "dist_norm": 0.131, "components": {"proximity": 0.935, "facing": 0.98, "slow": 0.0, "approach": 0.173}}
+{"t": 187.3, "event": "entered", "track_id": 100, "score": 0.37, "dist_norm": 0.965, "components": {"proximity": 0.517, "facing": 0.0, "slow": 0.099, "approach": 0.0}}
+{"t": 189.6, "event": "entered", "track_id": 96, "score": 0.328, "dist_norm": 1.056, "components": {"proximity": 0.472, "facing": 0.0, "slow": 0.074, "approach": 0.0}}
+{"t": 241.9, "event": "interest", "track_id": 126, "score": 1.591, "dist_norm": 0.517, "components": {"proximity": 0.742, "facing": 0.603, "slow": 0.703, "approach": 0.0}}
+{"t": 329.2, "event": "interest", "track_id": 199, "score": 1.699, "dist_norm": 0.852, "components": {"proximity": 0.574, "facing": 0.379, "slow": 0.0, "approach": 1.0}}
+{"t": 333.3, "event": "interest", "track_id": 201, "score": 1.417, "dist_norm": 0.298, "components": {"proximity": 0.851, "facing": 0.302, "slow": 0.095, "approach": 0.541}}
+{"t": 334.3, "event": "interest", "track_id": 202, "score": 1.299, "dist_norm": 0.061, "components": {"proximity": 0.97, "facing": 0.0, "slow": 0.691, "approach": 0.337}}
+{"t": 339.4, "event": "entered", "track_id": 202, "score": 0.224, "dist_norm": 1.254, "components": {"proximity": 0.373, "facing": 0.0, "slow": 0.0, "approach": 0.0}}
+{"t": 355.2, "event": "interest", "track_id": 210, "score": 1.63, "dist_norm": 1.137, "components": {"proximity": 0.431, "facing": 0.662, "slow": 0.961, "approach": 0.0}}
+{"t": 249.3, "event": "passed_by_eof", "track_id": 126}
+{"t": 330.3, "event": "passed_by_eof", "track_id": 199}
+{"t": 334.4, "event": "passed_by_eof", "track_id": 201}
+{"t": 389.4, "event": "passed_by_eof", "track_id": 210}

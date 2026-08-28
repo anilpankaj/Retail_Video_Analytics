@@ -1,0 +1,239 @@
+{
+  "video": "/home/claude/rva_project/data/interior.mp4",
+  "frames_processed": 12947,
+  "fps": 30.0,
+  "task2": {
+    "A": 6,
+    "B": 4,
+    "C": 2,
+    "D": 4
+  },
+  "config": {
+    "model": {
+      "weights": "models/yolo11s-pose.pt",
+      "imgsz": 960,
+      "conf": 0.3,
+      "iou": 0.55,
+      "device": "cpu",
+      "half": false,
+      "tracker": "configs/botsort_rva.yaml"
+    },
+    "runtime": {
+      "frame_stride": 3,
+      "smoothing_window": 7,
+      "walk_speed_norm": 0.9,
+      "motion_bias": 0.65,
+      "kp_conf_min": 0.35,
+      "fragment_linker": {
+        "enabled": true,
+        "max_gap_s": 3.0,
+        "max_dist_norm": 2.2,
+        "min_similarity": 0.45,
+        "retire_after_s": 0.5,
+        "link_within_obs": 3
+      }
+    },
+    "output": {
+      "codec": "mp4v",
+      "draw_keypoints": true,
+      "entrance_video": "entrance_annotated.mp4",
+      "interior_video": "interior_annotated.mp4"
+    },
+    "name": "interior",
+    "scene": {
+      "roi_polygon": [
+        [
+          0,
+          230
+        ],
+        [
+          1280,
+          230
+        ],
+        [
+          1280,
+          720
+        ],
+        [
+          0,
+          720
+        ]
+      ],
+      "shelves": [
+        {
+          "id": "A",
+          "polygon": [
+            [
+              715,
+              195
+            ],
+            [
+              1005,
+              200
+            ],
+            [
+              1010,
+              470
+            ],
+            [
+              930,
+              510
+            ],
+            [
+              712,
+              400
+            ]
+          ],
+          "label_anchor": [
+            860,
+            250
+          ],
+          "color": [
+            80,
+            90,
+            245
+          ],
+          "max_norm_dist": 1.1
+        },
+        {
+          "id": "B",
+          "polygon": [
+            [
+              430,
+              355
+            ],
+            [
+              700,
+              310
+            ],
+            [
+              800,
+              320
+            ],
+            [
+              815,
+              500
+            ],
+            [
+              790,
+              700
+            ],
+            [
+              560,
+              715
+            ],
+            [
+              440,
+              590
+            ]
+          ],
+          "label_anchor": [
+            600,
+            420
+          ],
+          "color": [
+            90,
+            200,
+            90
+          ],
+          "max_norm_dist": 1.0
+        },
+        {
+          "id": "C",
+          "polygon": [
+            [
+              285,
+              305
+            ],
+            [
+              300,
+              225
+            ],
+            [
+              672,
+              172
+            ],
+            [
+              705,
+              222
+            ],
+            [
+              668,
+              320
+            ]
+          ],
+          "label_anchor": [
+            470,
+            250
+          ],
+          "color": [
+            235,
+            100,
+            235
+          ],
+          "max_norm_dist": 1.1
+        },
+        {
+          "id": "D",
+          "polygon": [
+            [
+              95,
+              375
+            ],
+            [
+              290,
+              700
+            ],
+            [
+              240,
+              720
+            ],
+            [
+              85,
+              720
+            ],
+            [
+              55,
+              500
+            ]
+          ],
+          "label_anchor": [
+            150,
+            520
+          ],
+          "color": [
+            235,
+            235,
+            60
+          ],
+          "max_norm_dist": 1.0
+        }
+      ]
+    },
+    "task2": {
+      "exclude_staff": false,
+      "staff": {
+        "residency_target_s": 90.0,
+        "score_threshold": 0.62,
+        "min_obs": 20,
+        "force_staff_ids": [],
+        "force_customer_ids": []
+      },
+      "interest": {
+        "max_norm_dist": 1.05,
+        "facing_angle_deg": 75,
+        "reach_angle_deg": 70,
+        "score_weights": {
+          "proximity": 0.7,
+          "facing": 0.7,
+          "reach": 1.0
+        },
+        "score_threshold": 0.9,
+        "min_dwell_s": 2.5,
+        "flicker_tolerance_s": 1.5,
+        "min_gap_between_events_s": 6.0,
+        "min_track_seconds": 1.0
+      }
+    }
+  }
+}

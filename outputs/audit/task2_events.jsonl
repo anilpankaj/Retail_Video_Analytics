@@ -1,0 +1,16 @@
+{"t": 3.5, "event": "shelf_interest", "shelf": "B", "track_id": 1, "dist_norm": 0.0, "facing_deg": 3.5}
+{"t": 3.5, "event": "shelf_interest", "shelf": "A", "track_id": 3, "dist_norm": 0.0, "facing_deg": 3.7}
+{"t": 5.3, "event": "shelf_interest", "shelf": "C", "track_id": 4, "dist_norm": 0.987, "facing_deg": 44.9}
+{"t": 10.5, "event": "shelf_interest", "shelf": "B", "track_id": 6, "dist_norm": 0.0, "facing_deg": 52.4}
+{"t": 10.7, "event": "shelf_interest", "shelf": "A", "track_id": 6, "dist_norm": 0.851, "facing_deg": 9.0}
+{"t": 15.9, "event": "shelf_interest", "shelf": "D", "track_id": 11, "dist_norm": 0.752, "facing_deg": 36.7}
+{"t": 23.5, "event": "shelf_interest", "shelf": "B", "track_id": 19, "dist_norm": 0.132, "facing_deg": 21.0}
+{"t": 27.1, "event": "shelf_interest", "shelf": "D", "track_id": 4, "dist_norm": 0.567, "facing_deg": 44.5}
+{"t": 33.9, "event": "shelf_interest", "shelf": "A", "track_id": 1, "dist_norm": 0.0, "facing_deg": 21.4}
+{"t": 45.6, "event": "shelf_interest", "shelf": "A", "track_id": 19, "dist_norm": 0.0, "facing_deg": 17.4}
+{"t": 55.2, "event": "shelf_interest", "shelf": "A", "track_id": 1, "dist_norm": 0.0, "facing_deg": 13.2}
+{"t": 74.8, "event": "shelf_interest", "shelf": "B", "track_id": 19, "dist_norm": 0.0, "facing_deg": 49.2}
+{"t": 76.5, "event": "shelf_interest", "shelf": "C", "track_id": 19, "dist_norm": 0.052, "facing_deg": 2.6}
+{"t": 193.9, "event": "shelf_interest", "shelf": "A", "track_id": 83, "dist_norm": 0.202, "facing_deg": 8.7}
+{"t": 203.2, "event": "shelf_interest", "shelf": "D", "track_id": 84, "dist_norm": 0.64, "facing_deg": 95.3}
+{"t": 204.5, "event": "shelf_interest", "shelf": "D", "track_id": 80, "dist_norm": 0.003, "facing_deg": 56.2}

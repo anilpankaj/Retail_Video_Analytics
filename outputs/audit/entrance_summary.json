@@ -1,0 +1,282 @@
+{
+  "video": "/home/claude/rva_project/data/entrance.mp4",
+  "frames_processed": 13421,
+  "fps": 30.0,
+  "task1": {
+    "total_interested": 6,
+    "interested_entered": 2,
+    "interested_passed_by": 4
+  },
+  "task3": {
+    "staff_instances": 5,
+    "total_sessions": 5,
+    "average_sessions_per_staff": 1.0
+  },
+  "config": {
+    "model": {
+      "weights": "models/yolo11s-pose.pt",
+      "imgsz": 960,
+      "conf": 0.3,
+      "iou": 0.55,
+      "device": "cpu",
+      "half": false,
+      "tracker": "configs/botsort_rva.yaml"
+    },
+    "runtime": {
+      "frame_stride": 3,
+      "smoothing_window": 7,
+      "walk_speed_norm": 0.9,
+      "motion_bias": 0.65,
+      "kp_conf_min": 0.35,
+      "fragment_linker": {
+        "enabled": true,
+        "max_gap_s": 3.0,
+        "max_dist_norm": 2.2,
+        "min_similarity": 0.45,
+        "retire_after_s": 0.5,
+        "link_within_obs": 3
+      }
+    },
+    "output": {
+      "codec": "mp4v",
+      "draw_keypoints": true,
+      "entrance_video": "entrance_annotated.mp4",
+      "interior_video": "interior_annotated.mp4"
+    },
+    "name": "entrance",
+    "scene": {
+      "roi_top_y": 215,
+      "store_polygon": [
+        [
+          0,
+          440
+        ],
+        [
+          150,
+          405
+        ],
+        [
+          280,
+          345
+        ],
+        [
+          390,
+          288
+        ],
+        [
+          470,
+          335
+        ],
+        [
+          560,
+          372
+        ],
+        [
+          660,
+          402
+        ],
+        [
+          760,
+          428
+        ],
+        [
+          870,
+          450
+        ],
+        [
+          1000,
+          455
+        ],
+        [
+          1140,
+          452
+        ],
+        [
+          1280,
+          455
+        ],
+        [
+          1280,
+          720
+        ],
+        [
+          0,
+          720
+        ]
+      ],
+      "walkway_polygon": [
+        [
+          390,
+          288
+        ],
+        [
+          430,
+          238
+        ],
+        [
+          520,
+          220
+        ],
+        [
+          640,
+          210
+        ],
+        [
+          780,
+          206
+        ],
+        [
+          920,
+          210
+        ],
+        [
+          1060,
+          224
+        ],
+        [
+          1200,
+          242
+        ],
+        [
+          1280,
+          258
+        ],
+        [
+          1280,
+          455
+        ],
+        [
+          1140,
+          452
+        ],
+        [
+          1000,
+          455
+        ],
+        [
+          870,
+          450
+        ],
+        [
+          760,
+          428
+        ],
+        [
+          660,
+          402
+        ],
+        [
+          560,
+          372
+        ],
+        [
+          470,
+          335
+        ]
+      ],
+      "storefront_line": [
+        [
+          390,
+          288
+        ],
+        [
+          470,
+          335
+        ],
+        [
+          560,
+          372
+        ],
+        [
+          660,
+          402
+        ],
+        [
+          760,
+          428
+        ],
+        [
+          870,
+          450
+        ],
+        [
+          1000,
+          455
+        ],
+        [
+          1140,
+          452
+        ],
+        [
+          1280,
+          455
+        ]
+      ]
+    },
+    "task1": {
+      "exclude_staff": true,
+      "interest": {
+        "max_norm_dist_to_front": 2.0,
+        "facing_angle_deg": 70,
+        "slow_speed_norm": 0.55,
+        "approach_rate_norm": -0.05,
+        "approach_full_rate_norm": 0.8,
+        "score_weights": {
+          "proximity": 0.6,
+          "facing": 1.2,
+          "slow": 0.6,
+          "approach": 0.9
+        },
+        "score_threshold": 1.2,
+        "min_evidence_s": 0.8,
+        "evidence_tolerance_s": 0.5,
+        "min_track_seconds": 0.8,
+        "require_walkway_origin": true,
+        "min_walkway_seconds": 0.4
+      },
+      "entry": {
+        "confirm_s": 1.2,
+        "min_depth_norm": 0.45
+      },
+      "exit": {
+        "passby_confirm_s": 1.0
+      }
+    },
+    "task3": {
+      "staff": {
+        "dark_v_max": 95,
+        "dark_s_max": 120,
+        "badge_v_min": 140,
+        "badge_min_fraction": 0.005,
+        "badge_max_fraction": 0.06,
+        "badge_min_aspect": 0.6,
+        "badge_min_fill": 0.42,
+        "badge_requires_apron": 0.4,
+        "badge_rate_target": 0.25,
+        "min_badge_height_px": 110,
+        "residency_target_s": 30.0,
+        "score_weights": {
+          "apron": 0.35,
+          "badge": 0.45,
+          "residency": 0.2
+        },
+        "score_threshold": 0.62,
+        "min_obs": 60,
+        "min_track_seconds": 2.0,
+        "force_staff_ids": [],
+        "force_customer_ids": []
+      },
+      "interaction": {
+        "max_norm_dist": 1.9,
+        "facing_angle_deg": 80,
+        "require_mutual": false,
+        "allow_costationary": true,
+        "costationary_speed_norm": 0.22,
+        "costationary_max_norm_dist": 1.5,
+        "min_session_s": 2.0,
+        "flicker_tolerance_s": 1.0,
+        "end_gap_s": 3.0
+      }
+    }
+  }
+}

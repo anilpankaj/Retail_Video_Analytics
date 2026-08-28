@@ -3,7 +3,6 @@ __pycache__/
 .pytest_cache/
 data/*.mp4
 models/*.pt
-outputs/
 outputs_*/
 calib/
 *.log

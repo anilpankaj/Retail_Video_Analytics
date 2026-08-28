@@ -1,0 +1,5 @@
+{"t": 250.5, "event": "interaction_session", "staff_id": 142, "customer_id": 96, "reason": "facing"}
+{"t": 250.6, "event": "interaction_session", "staff_id": 142, "customer_id": 100, "reason": "facing"}
+{"t": 251.6, "event": "interaction_session", "staff_id": 142, "customer_id": 139, "reason": "facing"}
+{"t": 263.3, "event": "interaction_session", "staff_id": 142, "customer_id": 139, "reason": "facing"}
+{"t": 282.3, "event": "interaction_session", "staff_id": 142, "customer_id": 166, "reason": "facing"}
