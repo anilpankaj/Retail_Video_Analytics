@@ -4,7 +4,7 @@ An end-to-end, **fully local** video analytics pipeline that measures customer
 interest, shelf engagement and staff–customer interaction from fixed retail
 CCTV footage.
 
-Submission for the Hendricks *Computer Vision Engineer* take-home assessment.
+Submission for the *Computer Vision Engineer* take-home assessment.
 
 | | Source video | Metric | Deliverables |
 |---|---|---|---|
